@@ -11,10 +11,12 @@
 using namespace cv;
 using namespace std;
 
+
+
 //camera settings
 const int camera_width = 1280;
 const int camera_height = 720;
-const int virtual_camera_angle = 60;
+const int virtual_camera_angle = 83;
 unsigned char bkgnd[camera_width*camera_height * 3];
 
 /* program & OpenGL initialization */
@@ -57,7 +59,7 @@ void initVideoStream(cv::VideoCapture &cap)
 	cap.open(0); // open the default camera
 }
 
-void display(GLFWwindow* window, const cv::Mat &img_bgr)
+void display(GLFWwindow* window, const Mat &img_bgr, Eigen::Matrix4f marker_matrix)
 {
 	memcpy(bkgnd, img_bgr.data, sizeof(bkgnd));
 
@@ -82,9 +84,64 @@ void display(GLFWwindow* window, const cv::Mat &img_bgr)
     glDrawPixels(camera_width, camera_height, GL_BGR, GL_UNSIGNED_BYTE, bkgnd);
 
 	glPopMatrix();
+    glEnable(GL_DEPTH_TEST);
 
-	glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_MODELVIEW);
+
+    //move to marker position
+    glLoadTransposeMatrixf(marker_matrix.data());
+    
+
+    //render square
+    /*double size = 0.04;
+    double size_h = 0.02;
+    glColor3f(1.0, 0.0, 0.0);
+
+    glBegin(GL_QUADS);
+        glVertex3f(+size/2.0, +size/2.0, 0);
+        glVertex3f(-size/2.0, +size/2.0, 0);
+        glVertex3f(-size/2.0, +size/2.0, -size);
+        glVertex3f(+size/2.0, +size/2.0, -size);
+        glNormal3f(0.0, 1.0, 0.0);
+
+        glVertex3f(-size/2.0, +size/2.0, 0);
+        glVertex3f(-size/2.0, -size/2.0, 0);
+        glVertex3f(-size/2.0, -size/2.0, -size);
+        glVertex3f(-size/2.0, +size/2.0, -size);
+        glNormal3f(-1.0, 0.0, 0.0);
+
+        glVertex3f(+size/2.0, -size/2.0, 0);
+        glVertex3f(-size/2.0, -size/2.0, 0);
+        glVertex3f(-size/2.0, -size/2.0, -size);
+        glVertex3f(+size/2.0, -size/2.0, -size);
+        glNormal3f(0.0, -1.0, 0.0);
+
+        glVertex3f(+size/2.0, +size/2.0, 0);
+        glVertex3f(+size/2.0, -size/2.0, 0);
+        glVertex3f(+size/2.0, -size/2.0, -size);
+        glVertex3f(+size/2.0, +size/2.0, -size);
+        glNormal3f(1.0, 0.0, 0.0);
+
+        //upper and lower quads
+        for (double j = 0; j >= -size; j -= size){
+            int n = (j == 0) ? -1 : 1;
+            glVertex3f(+size/2.0, +size/2.0, j);
+            glVertex3f(-size/2.0, +size/2.0, j);
+            glVertex3f(-size/2.0, -size/2.0, j);
+            glVertex3f(+size/2.0, -size/2.0, j);
+            glNormal3f(0.0, 0.0, n);
+        }
+    glEnd();*/
+
+    //render snowman
+    /*glColor4f(1.0, 1.0, 1.0, 1.0);
+    glPushMatrix();
+        drawSphere(0.04, 10, 100);
+        glPushMatrix();
+            glTranslatef(0.0, 0.0, 0.04);
+            drawSphere(0.02, 10, 10);
+    glPopMatrix();*/
+
 }
 
 int main(int argc, char* argv[])
@@ -119,6 +176,13 @@ int main(int argc, char* argv[])
 	VideoCapture cap;
 	initVideoStream(cap);
 
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(virtual_camera_angle, (double)window_width/(double)window_height, 0.01, 100);
+
+
+	Eigen::Matrix4f marker_matrix;
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
@@ -135,10 +199,10 @@ int main(int argc, char* argv[])
 
 		/* Find the markers in the frame */
 		MarkerTracker mt;
-		mt.find(img_bgr);
+        marker_matrix = mt.find(img_bgr);
 
 		/* Render here */
-		display(window, img_bgr);
+        display(window, img_bgr, marker_matrix);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);

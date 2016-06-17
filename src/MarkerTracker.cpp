@@ -1,6 +1,6 @@
 #include "MarkerTracker.h"
 
-vector<vector<Point>> MarkerTracker::find (Mat& img_bgr){
+Eigen::Matrix4f MarkerTracker::find (Mat& img_bgr){
 
     Mat img_gray;
 
@@ -191,6 +191,7 @@ vector<vector<Point>> MarkerTracker::find (Mat& img_bgr){
 
             //creating a new 6x6 image
             Mat img_marker;
+            Mat img_marker_resized;
             warpPerspective(img_gray, img_marker, transformation, Size(6,6), INTER_LINEAR);
             threshold(img_marker, img_marker, 100, 255, THRESH_BINARY);
 
@@ -213,8 +214,8 @@ vector<vector<Point>> MarkerTracker::find (Mat& img_bgr){
                     //display the marker in a new window
                     namedWindow("Marker", WINDOW_NORMAL);
 
-                    resize(img_marker, img_marker, Size(), 50, 50, INTER_NEAREST);
-                    imshow("Marker", img_marker);
+                    resize(img_marker, img_marker_resized, Size(), 50, 50, INTER_NEAREST);
+                    imshow("Marker", img_marker_resized);
 
                     first_marker = false;
                 }
@@ -250,36 +251,37 @@ vector<vector<Point>> MarkerTracker::find (Mat& img_bgr){
                         }
                     }
 
-                    cout << "The marker rotation: " << min_marker_rotation << ", Marker: " << hex << min_marker_id <<
-                    "\n";
+                    if (min_marker_id == 4648) {
 
-                    //correct order of corners by found out order
-                    Point2f temp_corners[4];
-                    if (min_marker_rotation != 0) {
+                        cout << "The marker rotation: " << min_marker_rotation << ", Marker: " << hex <<
+                        min_marker_id << "\n";
+
+                        //correct order of corners by found out order
+                        Point2f temp_corners[4];
+
                         for (int j = 0; j < 4; j++) {
-                            temp_corners[j] = exact_corners[(j + min_marker_rotation) % 4];
+                            temp_corners[(j+ min_marker_rotation) % 4] = exact_corners[j];
                         }
-                    }
 
-                    for (int j = 0; j < 4; j++) {
-                        exact_corners[j] = temp_corners[j];
-                    }
 
-                    //compute the coordinates of the markers in screen space
-                    for (int j = 0; j < 4; j++) {
-                        exact_corners[j].x -= 640;
-                        exact_corners[j].y = -exact_corners[j].y + 360;
-                    }
+                        for (int j = 0; j < 4; j++) {
+                            exact_corners[j] = temp_corners[j];
+                            //compute the coordinates of the markers in screen space
+                            exact_corners[j].x -= 640;
+                            exact_corners[j].y = -exact_corners[j].y + 360;
+                        }
 
-                    //now use given function EstimateSquarePose
-                    Eigen::Matrix4f result_matrix;
-                    estimateSquarePose(result_matrix, exact_corners, 0.048182);
+
+                        //now use given function EstimateSquarePose
+                        Eigen::Matrix4f marker_matrix;
+                        estimateSquarePose(marker_matrix, exact_corners, 0.048182);
+
+                        return marker_matrix;
+                    }
                 }
             }
         }
     }
-
-    return approx_contours;
 }
 
 int MarkerTracker::sampleSubPix(const Mat &point_source, const Point2f &point) {

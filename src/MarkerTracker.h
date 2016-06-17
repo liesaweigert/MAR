@@ -5,6 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include "PoseEstimation.h"
 #include <iomanip>
+#include "DrawPrimitives.h"
 
 using namespace std;
 using namespace cv;
@@ -12,7 +13,7 @@ using namespace cv;
 class MarkerTracker {
 
     public:
-        vector<vector<Point>> find (Mat& image);
+        Eigen::Matrix4f find (Mat& image);
 
     private:
         int sampleSubPix(const Mat &point_source, const Point2f &p);

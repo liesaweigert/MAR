@@ -21,10 +21,14 @@ FIND_PACKAGE(OpenCV REQUIRED)
 SET(MAR_SOURCES
     src/main.cpp
         src/MarkerTracker.cpp src/MarkerTracker.h
-        src/PoseEstimation.cpp src/PoseEstimation.h)
+        src/PoseEstimation.cpp src/PoseEstimation.h
+        src/DrawPrimitives.cpp src/DrawPrimitives.h)
 
 # define executable
 ADD_EXECUTABLE(${PROJECT_NAME} ${MAR_SOURCES})
+
+find_package(OPENGL REQUIRED)
+target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 
 # define additional include directories and linking targets
 INCLUDE_DIRECTORIES("ext/glfw-3.1.1/include" ${EIGEN_INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})

@@ -11,5 +11,7 @@
 
 void drawSphere(double r, int lats, int longs);
 void drawCone(GLdouble base, GLdouble height, GLint slices, GLint stacks);
+void drawCube(double size);
+void drawPenis(double radius);
 
 #endif //OPENGLSTARTER_DRAWPRIMITIVES_H

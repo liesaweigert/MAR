@@ -90,48 +90,13 @@ void display(GLFWwindow* window, const Mat &img_bgr, Eigen::Matrix4f marker_matr
 
     //move to marker position
     glLoadTransposeMatrixf(marker_matrix.data());
-    
+
 
     //render square
-    /*double size = 0.04;
-    double size_h = 0.02;
-    glColor3f(1.0, 0.0, 0.0);
+    double size = 0.04;
+    glColor3f(1.0, 0.0, 1.0);
 
-    glBegin(GL_QUADS);
-        glVertex3f(+size/2.0, +size/2.0, 0);
-        glVertex3f(-size/2.0, +size/2.0, 0);
-        glVertex3f(-size/2.0, +size/2.0, -size);
-        glVertex3f(+size/2.0, +size/2.0, -size);
-        glNormal3f(0.0, 1.0, 0.0);
-
-        glVertex3f(-size/2.0, +size/2.0, 0);
-        glVertex3f(-size/2.0, -size/2.0, 0);
-        glVertex3f(-size/2.0, -size/2.0, -size);
-        glVertex3f(-size/2.0, +size/2.0, -size);
-        glNormal3f(-1.0, 0.0, 0.0);
-
-        glVertex3f(+size/2.0, -size/2.0, 0);
-        glVertex3f(-size/2.0, -size/2.0, 0);
-        glVertex3f(-size/2.0, -size/2.0, -size);
-        glVertex3f(+size/2.0, -size/2.0, -size);
-        glNormal3f(0.0, -1.0, 0.0);
-
-        glVertex3f(+size/2.0, +size/2.0, 0);
-        glVertex3f(+size/2.0, -size/2.0, 0);
-        glVertex3f(+size/2.0, -size/2.0, -size);
-        glVertex3f(+size/2.0, +size/2.0, -size);
-        glNormal3f(1.0, 0.0, 0.0);
-
-        //upper and lower quads
-        for (double j = 0; j >= -size; j -= size){
-            int n = (j == 0) ? -1 : 1;
-            glVertex3f(+size/2.0, +size/2.0, j);
-            glVertex3f(-size/2.0, +size/2.0, j);
-            glVertex3f(-size/2.0, -size/2.0, j);
-            glVertex3f(+size/2.0, -size/2.0, j);
-            glNormal3f(0.0, 0.0, n);
-        }
-    glEnd();*/
+	drawPenis(size/2.0);
 
     //render snowman
     /*glColor4f(1.0, 1.0, 1.0, 1.0);

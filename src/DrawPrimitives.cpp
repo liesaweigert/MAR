@@ -37,6 +37,71 @@ void drawSphere(double r, int lats, int longs) {
 	}
 }
 
+void drawPenis(double radius){
+
+    glPushMatrix();
+	glTranslatef(0.02, 0.01, 0.0);
+	drawSphere(radius, 10, 10);
+    glPopMatrix();
+    glPushMatrix();
+	glTranslatef(-0.02, 0.01, 0.0);
+	drawSphere(radius, 10, 10);
+    glPopMatrix();
+
+    glPushMatrix();
+	glTranslatef(0.0, 0.0, -0.04);
+	drawSphere((radius + 0.005), 10, 10);
+
+
+	GLUquadricObj* quadric = gluNewQuadric();
+	gluQuadricDrawStyle(quadric, GLU_FILL);
+
+	gluCylinder(quadric, radius, radius, 0.04, 10, 10);
+	const GLdouble innerradius = 0.0;
+	gluDisk(quadric, innerradius, radius, 10, 10);
+
+	gluDeleteQuadric(quadric);
+    glPopMatrix();
+}
+
+void drawCube(double size){
+	glBegin(GL_QUADS);
+	glVertex3f(+size/2.0, +size/2.0, 0);
+	glVertex3f(-size/2.0, +size/2.0, 0);
+	glVertex3f(-size/2.0, +size/2.0, -size);
+	glVertex3f(+size/2.0, +size/2.0, -size);
+	glNormal3f(0.0, 1.0, 0.0);
+
+	glVertex3f(-size/2.0, +size/2.0, 0);
+	glVertex3f(-size/2.0, -size/2.0, 0);
+	glVertex3f(-size/2.0, -size/2.0, -size);
+	glVertex3f(-size/2.0, +size/2.0, -size);
+	glNormal3f(-1.0, 0.0, 0.0);
+
+	glVertex3f(+size/2.0, -size/2.0, 0);
+	glVertex3f(-size/2.0, -size/2.0, 0);
+	glVertex3f(-size/2.0, -size/2.0, -size);
+	glVertex3f(+size/2.0, -size/2.0, -size);
+	glNormal3f(0.0, -1.0, 0.0);
+
+	glVertex3f(+size/2.0, +size/2.0, 0);
+	glVertex3f(+size/2.0, -size/2.0, 0);
+	glVertex3f(+size/2.0, -size/2.0, -size);
+	glVertex3f(+size/2.0, +size/2.0, -size);
+	glNormal3f(1.0, 0.0, 0.0);
+
+	//upper and lower quads
+	for (double j = 0; j >= -size; j -= size){
+		int n = (j == 0) ? -1 : 1;
+		glVertex3f(+size/2.0, +size/2.0, j);
+		glVertex3f(-size/2.0, +size/2.0, j);
+		glVertex3f(-size/2.0, -size/2.0, j);
+		glVertex3f(+size/2.0, -size/2.0, j);
+		glNormal3f(0.0, 0.0, n);
+	}
+	glEnd();
+}
+
 
 void drawCone(GLdouble base, GLdouble height, GLint slices, GLint stacks)
 {

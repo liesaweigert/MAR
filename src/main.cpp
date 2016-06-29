@@ -7,6 +7,9 @@
 #include <Eigen/StdVector>
 #include "opencv2/opencv.hpp"
 #include "MarkerTracker.h"
+#include "DrawPrimitives.h"
+#include "Atom.h"
+#include <math.h>
 
 using namespace cv;
 using namespace std;
@@ -18,6 +21,12 @@ const int camera_width = 1280;
 const int camera_height = 720;
 const int virtual_camera_angle = 83;
 unsigned char bkgnd[camera_width*camera_height * 3];
+
+//initialize available atoms
+Atom hydrogen = Atom(626);
+Atom oxygen = Atom(4648);
+Atom chloride = Atom(7236);
+Atom fluoride = Atom(1680);
 
 /* program & OpenGL initialization */
 void initGL(int argc, char *argv[])
@@ -59,7 +68,7 @@ void initVideoStream(cv::VideoCapture &cap)
 	cap.open(0); // open the default camera
 }
 
-void display(GLFWwindow* window, const Mat &img_bgr, Eigen::Matrix4f marker_matrix)
+void display(GLFWwindow* window, const Mat &img_bgr)
 {
 	memcpy(bkgnd, img_bgr.data, sizeof(bkgnd));
 
@@ -84,30 +93,59 @@ void display(GLFWwindow* window, const Mat &img_bgr, Eigen::Matrix4f marker_matr
     glDrawPixels(camera_width, camera_height, GL_BGR, GL_UNSIGNED_BYTE, bkgnd);
 
 	glPopMatrix();
-    glEnable(GL_DEPTH_TEST);
+}
+
+void render_bond(Eigen::Matrix4f from, Eigen::Matrix4f to){
+	float radius = 0.01;
+
+	float x_from = from(3, 0);
+	float y_from = from(3, 1);
+	float z_from = from(3, 2);
+
+	float x_to = to(3, 0);
+	float y_to = to(3, 1);
+	float z_to = to(3, 2);
+
+	//calculate the distance of the two atoms
+	float x_diff = abs(x_from - x_to);
+	float y_diff = abs(y_from - y_to);
+	float z_diff = abs(z_from - z_to);
+
+	float distance = sqrt(x_diff * x_diff + y_diff * y_diff + z_diff * z_diff);
+
+	if (distance > 0 && distance < 0.4) {
+		//glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		glLineWidth(25);
+		glColor3f(0.8, 0.8, 0.8);
+
+		glBegin(GL_LINE_STRIP);
+		glVertex3f(x_from, y_from, z_from);
+		glVertex3f(x_to, y_to, z_to);
+		glEnd();
+	}
+}
+
+void display_atom(GLFWwindow* window, const Mat &img_bgr, Marker* markers){
+	glEnable(GL_DEPTH_TEST);
 
 	glMatrixMode(GL_MODELVIEW);
 
-    //move to marker position
-    glLoadTransposeMatrixf(marker_matrix.data());
+	for (int i = 0; i < 6; i++){
 
+		glLoadTransposeMatrixf(markers[i].marker_matrix.data());
+		markers[i].type.render_atom();
 
-    //render square
-    double size = 0.04;
-    glColor3f(1.0, 0.0, 1.0);
-
-	drawPenis(size/2.0);
-
-    //render snowman
-    /*glColor4f(1.0, 1.0, 1.0, 1.0);
-    glPushMatrix();
-        drawSphere(0.04, 10, 100);
-        glPushMatrix();
-            glTranslatef(0.0, 0.0, 0.04);
-            drawSphere(0.02, 10, 10);
-    glPopMatrix();*/
+		for(int j = 0; j < 6; j++){
+			if (j != i ){
+				render_bond(markers[i].marker_matrix, markers[j].marker_matrix);
+			}
+		}
+	}
 
 }
+
 
 int main(int argc, char* argv[])
 {
@@ -146,7 +184,8 @@ int main(int argc, char* argv[])
     gluPerspective(virtual_camera_angle, (double)window_width/(double)window_height, 0.01, 100);
 
 
-	Eigen::Matrix4f marker_matrix;
+	Marker markers[6];
+	init_markers(markers);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -164,10 +203,14 @@ int main(int argc, char* argv[])
 
 		/* Find the markers in the frame */
 		MarkerTracker mt;
-        marker_matrix = mt.find(img_bgr);
+        mt.find(img_bgr, markers);
 
 		/* Render here */
-        display(window, img_bgr, marker_matrix);
+
+        display(window, img_bgr);
+
+		display_atom(window, img_bgr, markers);
+
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);

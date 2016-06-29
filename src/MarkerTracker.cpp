@@ -1,6 +1,6 @@
 #include "MarkerTracker.h"
 
-Eigen::Matrix4f MarkerTracker::find (Mat& img_bgr){
+void MarkerTracker::find (Mat& img_bgr, Marker* markers){
 
     Mat img_gray;
 
@@ -107,6 +107,7 @@ Eigen::Matrix4f MarkerTracker::find (Mat& img_bgr){
                         sobel_stripe[n - 1] = first_row + third_row;
                     }
 
+                    /*
                     if (first_stripe) {
                         //display the stripe in a new window
                         namedWindow("Stripe", WINDOW_NORMAL);
@@ -121,6 +122,7 @@ Eigen::Matrix4f MarkerTracker::find (Mat& img_bgr){
 
                         first_stripe = false;
                     }
+                    */
 
                     //finding the maximum pixel in the sobel_values
                     int max_value = -1;
@@ -210,6 +212,7 @@ Eigen::Matrix4f MarkerTracker::find (Mat& img_bgr){
                 uint16_t marker_ids[4];
                 int min_marker_rotation = 0;
 
+                /*
                 if (first_marker) {
                     //display the marker in a new window
                     namedWindow("Marker", WINDOW_NORMAL);
@@ -219,6 +222,7 @@ Eigen::Matrix4f MarkerTracker::find (Mat& img_bgr){
 
                     first_marker = false;
                 }
+                */
 
                 //save the marker-ids (0 = white, 1 = black)
                 for (int j = 0; j < 4; j++){ //four rotations
@@ -251,7 +255,15 @@ Eigen::Matrix4f MarkerTracker::find (Mat& img_bgr){
                         }
                     }
 
-                    if (min_marker_id == 4648) {
+                    int current_marker = -1;
+
+                    for(int i = 0; i < 6; i++){
+                        if (min_marker_id == markers[i].marker_code){
+                            current_marker = i;
+                        }
+                    }
+
+                    if (current_marker >= 0){
 
                         cout << "The marker rotation: " << min_marker_rotation << ", Marker: " << hex <<
                         min_marker_id << "\n";
@@ -276,7 +288,7 @@ Eigen::Matrix4f MarkerTracker::find (Mat& img_bgr){
                         Eigen::Matrix4f marker_matrix;
                         estimateSquarePose(marker_matrix, exact_corners, 0.048182);
 
-                        return marker_matrix;
+                        markers[current_marker].marker_matrix = marker_matrix;
                     }
                 }
             }
@@ -335,4 +347,20 @@ Point2f MarkerTracker::intersection(Vec4f line1, Vec4f line2){
     intersect_point = l1_p1 + d1 * t1;
 
     return intersect_point;
+}
+
+
+void init_markers(Marker* marker){
+    marker[0].marker_code = 4648;   //hex: 1228
+    marker[0].type = Atom(4648);
+    marker[1].marker_code = 7236;   //hex: 1c44
+    marker[1].type = Atom(7236);
+    marker[2].marker_code = 1680;   //hex: 0690
+    marker[2].type = Atom(1680);
+    marker[3].marker_code = 626;    //hex: 02c2
+    marker[3].type = Atom(626);
+    marker[4].marker_code = 90;     //hex: 005a
+    marker[4].type = Atom(90);
+    marker[5].marker_code = 2884;   //hex: 0b44
+    marker[5].type = Atom(2884);
 }

@@ -6,30 +6,34 @@ if(UNIX)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif(UNIX)
 
-# Set static build for GLFW
-SET(BUILD_SHED_LIBS OFF)
-ADD_SUBDIRECTORY(ext/glfw-3.1.1)
-
 # Set shared lib build for the rest
 SET(BUILD_SHARED_LIBS ON)
 
 # Find dependencies
 SET(EIGEN_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/ext/Eigen-3.1.2")
-FIND_PACKAGE(OpenCV REQUIRED)
 
 # Set header and source files
 SET(MAR_SOURCES
     src/main.cpp
         src/MarkerTracker.cpp src/MarkerTracker.h
         src/PoseEstimation.cpp src/PoseEstimation.h
-        src/DrawPrimitives.cpp src/DrawPrimitives.h)
+        src/DrawPrimitives.cpp src/DrawPrimitives.h src/Atom.cpp src/Atom.h)
 
 # define executable
 ADD_EXECUTABLE(${PROJECT_NAME} ${MAR_SOURCES})
+
+find_package(OpenCV REQUIRED)
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
 find_package(OPENGL REQUIRED)
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 
 # define additional include directories and linking targets
-INCLUDE_DIRECTORIES("ext/glfw-3.1.1/include" ${EIGEN_INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OpenCV_LIBS} glfw ${OPENGL_glu_LIBRARY} ${GLFW_LIBRARIES})
+INCLUDE_DIRECTORIES( ${EIGEN_INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OPENGL_glu_LIBRARY} ${GLFW_LIBRARIES})
+
+
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLFW REQUIRED glfw3)
+include_directories(${GLFW_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} ${GLFW_LIBRARIES})

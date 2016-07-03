@@ -62,7 +62,7 @@ Atom::Atom(int marker_code) {
 void Atom::render_atom() {
 
     glColor3f(color[0], color[1], color[2]);
-    drawSphere(this->diameter, 10, 10);
+    glutSolidSphere(this->diameter, 10, 10);
 }
 
 void Atom::assign_color(float r, float g, float b) {

@@ -8,7 +8,7 @@
 
 #include <Eigen/Dense>
 #include <GLFW/glfw3.h>
-#include "DrawPrimitives.h"
+#include <GLUT/glut.h>
 
 enum atom_name{
     Hydrogen,

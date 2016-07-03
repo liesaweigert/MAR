@@ -1,19 +1,21 @@
 ﻿#define GLFW_INCLUDE_GLU
 
 #include <iostream>
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 #include <opencv/cv.h>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
+#include <Eigen/Geometry>
 #include "opencv2/opencv.hpp"
 #include "MarkerTracker.h"
 #include "DrawPrimitives.h"
 #include "Atom.h"
 #include <math.h>
 
+#include <GLUT/glut.h>
+
 using namespace cv;
 using namespace std;
-
 
 
 //camera settings
@@ -21,12 +23,6 @@ const int camera_width = 1280;
 const int camera_height = 720;
 const int virtual_camera_angle = 83;
 unsigned char bkgnd[camera_width*camera_height * 3];
-
-//initialize available atoms
-Atom hydrogen = Atom(626);
-Atom oxygen = Atom(4648);
-Atom chloride = Atom(7236);
-Atom fluoride = Atom(1680);
 
 /* program & OpenGL initialization */
 void initGL(int argc, char *argv[])
@@ -45,9 +41,10 @@ void initGL(int argc, char *argv[])
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0);
 
+
 	// light parameters
-	GLfloat light_pos[] = { 1.0f, 1.0f, 1.0f, 0.0f };
-	GLfloat light_amb[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+	GLfloat light_pos[] = { 0.0, 0.0, 0.0 , 1.0f };
+	GLfloat light_amb[] = { 0.3f, 0.3f, 0.3f, 1.0f };
 	GLfloat light_dif[] = { 0.9f, 0.9f, 0.9f, 1.0f };
 
 	// enable lighting
@@ -93,6 +90,8 @@ void display(GLFWwindow* window, const Mat &img_bgr)
     glDrawPixels(camera_width, camera_height, GL_BGR, GL_UNSIGNED_BYTE, bkgnd);
 
 	glPopMatrix();
+
+    glEnable(GL_DEPTH_TEST);
 }
 
 void render_bond(Eigen::Matrix4f from, Eigen::Matrix4f to){
@@ -127,15 +126,14 @@ void render_bond(Eigen::Matrix4f from, Eigen::Matrix4f to){
 	}
 }
 
+
 void display_atom(GLFWwindow* window, const Mat &img_bgr, Marker* markers){
-	glEnable(GL_DEPTH_TEST);
 
 	glMatrixMode(GL_MODELVIEW);
 
-	for (int i = 0; i < 6; i++){
-
-		glLoadTransposeMatrixf(markers[i].marker_matrix.data());
-		markers[i].type.render_atom();
+    for (int i = 0; i < 6; i++){
+        glLoadTransposeMatrixf(markers[i].marker_matrix.data());
+        markers[i].type.render_atom();
 
 		for(int j = 0; j < 6; j++){
 			if (j != i ){
@@ -145,6 +143,8 @@ void display_atom(GLFWwindow* window, const Mat &img_bgr, Marker* markers){
 	}
 
 }
+
+
 
 
 int main(int argc, char* argv[])
@@ -211,13 +211,13 @@ int main(int argc, char* argv[])
 
 		display_atom(window, img_bgr, markers);
 
-
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
 
 		/* Poll for and process events */
 		glfwPollEvents();
 	}
+
 
 	glfwTerminate();
 

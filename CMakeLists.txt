@@ -17,9 +17,7 @@ SET(MAR_SOURCES
     src/main.cpp
         src/MarkerTracker.cpp src/MarkerTracker.h
         src/PoseEstimation.cpp src/PoseEstimation.h
-        src/DrawPrimitives.cpp src/DrawPrimitives.h
-        src/Atom.cpp src/Atom.h
-        src/Mesh.cpp src/Mesh.h)
+        src/Atom.cpp src/Atom.h)
 
 # define executable
 ADD_EXECUTABLE(${PROJECT_NAME} ${MAR_SOURCES})

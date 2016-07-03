@@ -8,7 +8,6 @@
 #include <Eigen/Geometry>
 #include "opencv2/opencv.hpp"
 #include "MarkerTracker.h"
-#include "DrawPrimitives.h"
 #include "Atom.h"
 #include <math.h>
 

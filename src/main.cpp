@@ -8,7 +8,6 @@
 #include <Eigen/Geometry>
 #include "opencv2/opencv.hpp"
 #include "MarkerTracker.h"
-#include "DrawPrimitives.h"
 #include "Atom.h"
 #include <math.h>
 
@@ -95,37 +94,35 @@ void display(GLFWwindow* window, const Mat &img_bgr)
 }
 
 void render_bond(Eigen::Matrix4f from, Eigen::Matrix4f to){
-	float radius = 0.01;
 
-	float x_from = from(3, 0);
-	float y_from = from(3, 1);
-	float z_from = from(3, 2);
+    float x_from = from(3, 0);
+    float y_from = from(3, 1);
+    float z_from = from(3, 2);
 
-	float x_to = to(3, 0);
-	float y_to = to(3, 1);
-	float z_to = to(3, 2);
+    float x_to = to(3, 0);
+    float y_to = to(3, 1);
+    float z_to = to(3, 2);
 
-	//calculate the distance of the two atoms
-	float x_diff = abs(x_from - x_to);
-	float y_diff = abs(y_from - y_to);
-	float z_diff = abs(z_from - z_to);
+    //calculate the distance of the two atoms
+    float x_diff = abs(x_from - x_to);
+    float y_diff = abs(y_from - y_to);
+    float z_diff = abs(z_from - z_to);
 
-	float distance = sqrt(x_diff * x_diff + y_diff * y_diff + z_diff * z_diff);
+    float distance = sqrt(x_diff * x_diff + y_diff * y_diff + z_diff * z_diff);
 
-	if (distance > 0 && distance < 0.4) {
-		//glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+    if (distance > 0 && distance < 0.4) {
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
 
-		glLineWidth(25);
-		glColor3f(0.8, 0.8, 0.8);
+        glLineWidth(25);
+        glColor3f(0.8, 0.8, 0.8);
 
-		glBegin(GL_LINE_STRIP);
-		glVertex3f(x_from, y_from, z_from);
-		glVertex3f(x_to, y_to, z_to);
-		glEnd();
-	}
+        glBegin(GL_LINE_STRIP);
+        glVertex3f(x_from, y_from, z_from);
+        glVertex3f(x_to, y_to, z_to);
+        glEnd();
+    }
 }
-
 
 void display_atom(GLFWwindow* window, const Mat &img_bgr, Marker* markers){
 

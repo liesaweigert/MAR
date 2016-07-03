@@ -12,11 +12,11 @@
 
 enum atom_name{
     Hydrogen,
-    Oxigen,
-    Chloride,
-    Neon,
-    Fluoride,
-    Stuff,
+    Carbon,
+    Nitrogen,
+    Oxygen,
+    Chlorine,
+    Sodium,
     Default
 };
 
@@ -29,6 +29,7 @@ public:
     Atom();
     Atom(int marker_code);
     void render_atom();
+    void render_bond(Eigen::Matrix4f from, Eigen::Matrix4f to);
 
 private:
     void assign_color(float r, float g, float b);

@@ -5,7 +5,6 @@
 #include <opencv2/opencv.hpp>
 #include "PoseEstimation.h"
 #include <iomanip>
-#include "DrawPrimitives.h"
 #include "Atom.h"
 
 using namespace std;

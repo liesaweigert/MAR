@@ -17,9 +17,7 @@ SET(MAR_SOURCES
     src/main.cpp
         src/MarkerTracker.cpp src/MarkerTracker.h
         src/PoseEstimation.cpp src/PoseEstimation.h
-        src/DrawPrimitives.cpp src/DrawPrimitives.h
-        src/Atom.cpp src/Atom.h
-        src/Mesh.cpp src/Mesh.h)
+        src/Atom.cpp src/Atom.h)
 
 # define executable
 ADD_EXECUTABLE(${PROJECT_NAME} ${MAR_SOURCES})
@@ -30,17 +28,15 @@ target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 find_package(OPENGL REQUIRED)
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 
-# define additional include directories and linking targets
-INCLUDE_DIRECTORIES( ${EIGEN_INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OPENGL_glu_LIBRARY} ${GLFW_LIBRARIES})
-
-find_package(GLEW REQUIRED)
-target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARIES})
-
 find_package(GLUT REQUIRED)
 target_link_libraries(${PROJECT_NAME} ${GLUT_LIBRARIES})
+
+# define additional include directories and linking targets
+INCLUDE_DIRECTORIES(${EIGEN_INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OPENGL_glu_LIBRARY} -lassimp)
 
 find_package(PkgConfig REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)
 include_directories(${GLFW_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${GLFW_LIBRARIES})
+

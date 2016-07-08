@@ -1,6 +1,6 @@
 #include "MarkerTracker.h"
 
-void MarkerTracker::find (Mat& img_bgr, Marker* markers){
+void MarkerTracker::find (Mat& img_bgr, Marker* markers, int marker_count){
 
     Mat img_gray;
 
@@ -19,6 +19,11 @@ void MarkerTracker::find (Mat& img_bgr, Marker* markers){
     findContours(img_contours, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0,0));
 
     approx_contours.resize(contours.size());
+
+    //we assume all markers are not visible at the moment
+    for (int i = 0; i < marker_count; i++){
+        markers[i].seen--;
+    }
 
     bool first_stripe = true;
     bool first_marker = true;
@@ -289,6 +294,7 @@ void MarkerTracker::find (Mat& img_bgr, Marker* markers){
                         estimateSquarePose(marker_matrix, exact_corners, 0.048182);
 
                         markers[current_marker].marker_matrix = marker_matrix;
+                        markers[current_marker].seen = 10;
                     }
                 }
             }
@@ -351,16 +357,16 @@ Point2f MarkerTracker::intersection(Vec4f line1, Vec4f line2){
 
 
 void init_markers(Marker* marker){
-    marker[0].marker_code = 4648;   //hex: 1228
+    marker[0].marker_code = 0x1228;   //hex: 1228
     marker[0].type = Atom(4648);
+    marker[0].seen = 20;
     marker[1].marker_code = 7236;   //hex: 1c44
     marker[1].type = Atom(7236);
+    marker[1].seen = 20;
     marker[2].marker_code = 1680;   //hex: 0690
     marker[2].type = Atom(1680);
+    marker[2].seen = 20;
     marker[3].marker_code = 626;    //hex: 02c2
     marker[3].type = Atom(626);
-    marker[4].marker_code = 90;     //hex: 005a
-    marker[4].type = Atom(90);
-    marker[5].marker_code = 2884;   //hex: 0b44
-    marker[5].type = Atom(2884);
+    marker[3].seen = 20;
 }

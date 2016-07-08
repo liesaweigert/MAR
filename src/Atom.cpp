@@ -10,44 +10,33 @@ Atom::Atom(){
     this->marker_code = 0;
 }
 
+//radius t
 Atom::Atom(int marker_code) {
     this->marker_code = marker_code;
 
     switch (marker_code) {
         case 4648: {
-            this->name = atom_name::Oxigen;
-            this->diameter = 0.02;
-            assign_color(0.5, 0.5, 0.0);
+            this->name = atom_name::Oxygen;
+            this->diameter = 0.012;
+            assign_color(1.0, 0.0, 0.0);
             break;
         }
         case 7236: {
-            this->name = atom_name::Chloride;
-            this->diameter = 0.01;
-            assign_color(0.8, 0.5, 0.8);
+            this->name = atom_name::Carbon;
+            this->diameter = 0.014;
+            assign_color(0.0, 0.0, 0.0);
             break;
         }
         case 1680: {
-            this->name = atom_name::Fluoride;
-            this->diameter = 0.03;
-            assign_color(0.5, 0.0, 0.3);
+            this->name = atom_name::Nitrogen;
+            this->diameter = 0.013;
+            assign_color(0.0, 0.0, 0.5);
             break;
         }
         case 626: {
             this->name = atom_name::Hydrogen;
-            this->diameter = 0.06;
-            assign_color(0.0, 0.5, 0.9);
-            break;
-        }
-        case 90: {
-            this->name = atom_name::Neon;
-            this->diameter = 0.02;
-            assign_color(0.5, 1.0, 0.9);
-            break;
-        }
-        case 2884: {
-            this->name = atom_name::Stuff;
-            this->diameter = 0.04;
-            assign_color(0.5, 0.5, 1.0);
+            this->diameter = 0.005;
+            assign_color(1.0, 1.0, 1.0);
             break;
         }
         default: {
@@ -60,9 +49,8 @@ Atom::Atom(int marker_code) {
 }
 
 void Atom::render_atom() {
-
     glColor3f(color[0], color[1], color[2]);
-    glutSolidSphere(this->diameter, 10, 10);
+    glutSolidSphere(this->diameter, 20, 20);
 }
 
 void Atom::assign_color(float r, float g, float b) {

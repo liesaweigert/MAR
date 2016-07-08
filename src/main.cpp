@@ -1,15 +1,14 @@
-﻿#define GLFW_INCLUDE_GLU
+﻿#include <GL/glew.h>
+#define GLFW_INCLUDE_GLU
 
 #include <iostream>
 #include "GLFW/glfw3.h"
 #include <opencv/cv.h>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
-#include <Eigen/Geometry>
 #include "opencv2/opencv.hpp"
 #include "MarkerTracker.h"
-#include "Atom.h"
-#include <math.h>
+#include "RenderText.h"
 
 #include <GLUT/glut.h>
 
@@ -22,6 +21,11 @@ const int camera_width = 1280;
 const int camera_height = 720;
 const int virtual_camera_angle = 83;
 unsigned char bkgnd[camera_width*camera_height * 3];
+
+GLfloat black [4] = {0.0, 0.0, 0.0, 1.0};
+GLfloat white [4] = {1.0, 1.0, 1.0, 1.0};
+GLfloat red [4] = {1.0, 0.0, 0.0, 1.0};
+GLfloat darkblue [4] = {0.0, 0.0, 0.5, 1.0};
 
 /* program & OpenGL initialization */
 void initGL(int argc, char *argv[])
@@ -42,9 +46,9 @@ void initGL(int argc, char *argv[])
 
 
 	// light parameters
-	GLfloat light_pos[] = { 0.0, 0.0, 0.0 , 1.0f };
-	GLfloat light_amb[] = { 0.3f, 0.3f, 0.3f, 1.0f };
-	GLfloat light_dif[] = { 0.9f, 0.9f, 0.9f, 1.0f };
+	GLfloat light_pos[] = { 0.0, 0.0, 0.0, 1.0 };
+	GLfloat light_amb[] = { 0.3, 0.3, 0.3, 1.0 };
+	GLfloat light_dif[] = { 0.9, 0.9, 0.9, 1.0 };
 
 	// enable lighting
 	glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
@@ -53,6 +57,9 @@ void initGL(int argc, char *argv[])
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 	glShadeModel(GL_SMOOTH);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void initVideoStream(cv::VideoCapture &cap)
@@ -131,19 +138,26 @@ void display_atom(GLFWwindow* window, const Mat &img_bgr, Marker* markers){
 	glMatrixMode(GL_MODELVIEW);
 
     for (int i = 0; i < 6; i++){
-        glLoadTransposeMatrixf(markers[i].marker_matrix.data());
-        markers[i].type.render_atom();
+        if(markers[i].seen > 0) {
+            glLoadTransposeMatrixf(markers[i].marker_matrix.data());
+            markers[i].type.render_atom();
 
-		for(int j = 0; j < 6; j++){
-			if (j != i ){
-				render_bond(markers[i].marker_matrix, markers[j].marker_matrix);
-			}
-		}
+            for (int j = 0; j < 6; j++) {
+                if (j != i) {
+                    render_bond(markers[i].marker_matrix, markers[j].marker_matrix);
+                }
+            }
+        }
 	}
 
 }
 
-
+void display_reference(GLFWwindow* window){
+	render_text("Hydrogen", 20, 20, white, 48);
+	render_text("Oxygen", 20, 80, red, 48);
+    render_text("Carbon", 20, 140, black, 48);
+    render_text("Nitrogen", 20, 200, darkblue, 48);
+}
 
 
 int main(int argc, char* argv[])
@@ -170,8 +184,15 @@ int main(int argc, char* argv[])
 	glfwGetFramebufferSize(window, &window_width, &window_height);
     glViewport(0, 0, window_width, window_height);
 
+    //initialize glew
+    glewExperimental = GL_TRUE;
+    glewInit();
+
 	// initialize the GL library
 	initGL(argc, argv);
+
+	//set up text rendering
+	init_resources();
 
 	// setup OpenCV
 	Mat img_bgr;
@@ -202,11 +223,11 @@ int main(int argc, char* argv[])
 
 		/* Find the markers in the frame */
 		MarkerTracker mt;
-        mt.find(img_bgr, markers);
-
-		/* Render here */
+        mt.find(img_bgr, markers, 6);
 
         display(window, img_bgr);
+
+		display_reference(window);
 
 		display_atom(window, img_bgr, markers);
 

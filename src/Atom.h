@@ -12,11 +12,9 @@
 
 enum atom_name{
     Hydrogen,
-    Oxigen,
-    Chloride,
-    Neon,
-    Fluoride,
-    Stuff,
+    Oxygen,
+    Carbon,
+    Nitrogen,
     Default
 };
 

@@ -17,7 +17,9 @@ SET(MAR_SOURCES
     src/main.cpp
         src/MarkerTracker.cpp src/MarkerTracker.h
         src/PoseEstimation.cpp src/PoseEstimation.h
-        src/Atom.cpp src/Atom.h)
+        src/Atom.cpp src/Atom.h
+        src/RenderText.cpp src/RenderText.h
+        src/shader_utils.cpp src/shader_utils.h)
 
 # define executable
 ADD_EXECUTABLE(${PROJECT_NAME} ${MAR_SOURCES})
@@ -42,3 +44,8 @@ find_package(PkgConfig REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)
 include_directories(${GLFW_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${GLFW_LIBRARIES})
+
+include(FindFreeType)
+find_package(FREETYPE REQUIRED)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${FREETYPE_LIBRARIES})

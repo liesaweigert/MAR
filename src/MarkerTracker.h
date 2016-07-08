@@ -14,6 +14,7 @@ struct Marker{
     int marker_code;
     Eigen::Matrix4f marker_matrix;
     Atom type;
+    int seen;
 };
 
 
@@ -25,7 +26,7 @@ void init_markers(Marker* markers);
 class MarkerTracker {
 
 public:
-    void find (Mat& image, Marker* markers);
+    void find (Mat& image, Marker* markers, int marker_count);
 
 private:
     int sampleSubPix(const Mat &point_source, const Point2f &p);

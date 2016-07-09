@@ -1,6 +1,6 @@
 #include "MarkerTracker.h"
 
-void MarkerTracker::find (Mat& img_bgr, Marker* markers, int marker_count){
+vector<Marker> MarkerTracker::find (Mat& img_bgr){
 
     Mat img_gray;
 
@@ -12,6 +12,9 @@ void MarkerTracker::find (Mat& img_bgr, Marker* markers, int marker_count){
     vector<Vec4i> hierarchy;
     Mat img_contours = img_gray.clone();
 
+    //return vector
+    vector<Marker> markers;
+
     CvScalar red = Scalar(0, 0, 255);
     CvScalar blue = Scalar(255, 0, 0);
     Scalar white = Scalar(255, 255, 255);
@@ -19,11 +22,6 @@ void MarkerTracker::find (Mat& img_bgr, Marker* markers, int marker_count){
     findContours(img_contours, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0,0));
 
     approx_contours.resize(contours.size());
-
-    //we assume all markers are not visible at the moment
-    for (int i = 0; i < marker_count; i++){
-        markers[i].seen--;
-    }
 
     bool first_stripe = true;
     bool first_marker = true;
@@ -260,15 +258,7 @@ void MarkerTracker::find (Mat& img_bgr, Marker* markers, int marker_count){
                         }
                     }
 
-                    int current_marker = -1;
-
-                    for(int i = 0; i < 6; i++){
-                        if (min_marker_id == markers[i].marker_code){
-                            current_marker = i;
-                        }
-                    }
-
-                    if (current_marker >= 0){
+                    if (min_marker_id == 4648 || min_marker_id == 7236 || min_marker_id == 1680 || min_marker_id == 626){
 
                         cout << "The marker rotation: " << min_marker_rotation << ", Marker: " << hex <<
                         min_marker_id << "\n";
@@ -288,18 +278,26 @@ void MarkerTracker::find (Mat& img_bgr, Marker* markers, int marker_count){
                             exact_corners[j].y = -exact_corners[j].y + 360;
                         }
 
+                        Marker m;
+                        m.marker_code = min_marker_id;
+                        m.type = Atom(min_marker_id);
 
                         //now use given function EstimateSquarePose
-                        Eigen::Matrix4f marker_matrix;
-                        estimateSquarePose(marker_matrix, exact_corners, 0.048182);
+                        Eigen::Matrix4f temp_marker_matrix;
+                        estimateSquarePose(temp_marker_matrix, exact_corners, 0.048182);
 
-                        markers[current_marker].marker_matrix = marker_matrix;
-                        markers[current_marker].seen = 10;
+                        m.marker_matrix = temp_marker_matrix;
+                        m.x = temp_marker_matrix(3, 0);
+                        m.y = temp_marker_matrix(3, 1);
+                        m.z = temp_marker_matrix(3, 2);
+                        m.position = Eigen::Vector3f(m.x, m.y, m.z);
+                        markers.push_back(m);
                     }
                 }
             }
         }
     }
+    return markers;
 }
 
 int MarkerTracker::sampleSubPix(const Mat &point_source, const Point2f &point) {
@@ -353,20 +351,4 @@ Point2f MarkerTracker::intersection(Vec4f line1, Vec4f line2){
     intersect_point = l1_p1 + d1 * t1;
 
     return intersect_point;
-}
-
-
-void init_markers(Marker* marker){
-    marker[0].marker_code = 0x1228;   //hex: 1228
-    marker[0].type = Atom(4648);
-    marker[0].seen = 20;
-    marker[1].marker_code = 7236;   //hex: 1c44
-    marker[1].type = Atom(7236);
-    marker[1].seen = 20;
-    marker[2].marker_code = 1680;   //hex: 0690
-    marker[2].type = Atom(1680);
-    marker[2].seen = 20;
-    marker[3].marker_code = 626;    //hex: 02c2
-    marker[3].type = Atom(626);
-    marker[3].seen = 20;
 }

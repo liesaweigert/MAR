@@ -11,10 +11,13 @@ using namespace std;
 using namespace cv;
 
 struct Marker{
+    Atom type;
     int marker_code;
     Eigen::Matrix4f marker_matrix;
-    Atom type;
-    int seen;
+    float x;
+    float y;
+    float z;
+    Eigen::Vector3f position;
 };
 
 
@@ -26,7 +29,7 @@ void init_markers(Marker* markers);
 class MarkerTracker {
 
 public:
-    void find (Mat& image, Marker* markers, int marker_count);
+    vector<Marker> find (Mat& image);
 
 private:
     int sampleSubPix(const Mat &point_source, const Point2f &p);

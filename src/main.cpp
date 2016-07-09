@@ -100,54 +100,33 @@ void display(GLFWwindow* window, const Mat &img_bgr)
     glEnable(GL_DEPTH_TEST);
 }
 
-void render_bond(Eigen::Matrix4f from, Eigen::Matrix4f to){
-	float radius = 0.01;
+void render_bond(Marker from, Marker to){
 
-	float x_from = from(3, 0);
-	float y_from = from(3, 1);
-	float z_from = from(3, 2);
-
-	float x_to = to(3, 0);
-	float y_to = to(3, 1);
-	float z_to = to(3, 2);
-
-	//calculate the distance of the two atoms
-	float x_diff = abs(x_from - x_to);
-	float y_diff = abs(y_from - y_to);
-	float z_diff = abs(z_from - z_to);
-
-	float distance = sqrt(x_diff * x_diff + y_diff * y_diff + z_diff * z_diff);
-
-	if (distance > 0 && distance < 0.4) {
-		//glMatrixMode(GL_MODELVIEW);
+		//i only left a basic model
+		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
 		glLineWidth(25);
 		glColor3f(0.8, 0.8, 0.8);
 
 		glBegin(GL_LINE_STRIP);
-		glVertex3f(x_from, y_from, z_from);
-		glVertex3f(x_to, y_to, z_to);
+		glVertex3f(from.x, from.y, from.z);
+		glVertex3f(to.x, to.y, to.z);
 		glEnd();
-	}
 }
 
 
-void display_atom(GLFWwindow* window, const Mat &img_bgr, Marker* markers){
+void display_atom(GLFWwindow* window, const Mat &img_bgr, vector<Marker> markers){
 
 	glMatrixMode(GL_MODELVIEW);
 
-    for (int i = 0; i < 6; i++){
-        if(markers[i].seen > 0) {
-            glLoadTransposeMatrixf(markers[i].marker_matrix.data());
-            markers[i].type.render_atom();
+    for (auto m = markers.begin(); m != markers.end(); ++m){
+            glLoadTransposeMatrixf(m->marker_matrix.data());
+            m->type.render_atom();
 
-            for (int j = 0; j < 6; j++) {
-                if (j != i) {
-                    render_bond(markers[i].marker_matrix, markers[j].marker_matrix);
-                }
-            }
-        }
+			//TODO: render bond should go here
+            //Marker supplies x, y, z as both float values
+            //and a Eigen::Vector3f (might be easier to work with)
 	}
 
 }
@@ -204,8 +183,7 @@ int main(int argc, char* argv[])
     gluPerspective(virtual_camera_angle, (double)window_width/(double)window_height, 0.01, 100);
 
 
-	Marker markers[6];
-	init_markers(markers);
+
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -223,7 +201,7 @@ int main(int argc, char* argv[])
 
 		/* Find the markers in the frame */
 		MarkerTracker mt;
-        mt.find(img_bgr, markers, 6);
+		vector<Marker> markers = mt.find(img_bgr);
 
         display(window, img_bgr);
 
